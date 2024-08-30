@@ -1,9 +1,7 @@
 package com.gravadoracampista.controller;
 
-import com.gravadoracampista.dtos.request.AlbumRequestDto;
 import com.gravadoracampista.dtos.request.AvaliacaoRequestDto;
 import com.gravadoracampista.dtos.request.BandaRequestDto;
-import com.gravadoracampista.dtos.response.AlbumResponseFullDto;
 import com.gravadoracampista.dtos.response.BandaResponseDto;
 import com.gravadoracampista.dtos.response.BandaResponseFullDto;
 import com.gravadoracampista.exceptions.ResourceNotFoundException;

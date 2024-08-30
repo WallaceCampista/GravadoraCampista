@@ -4,6 +4,8 @@ import com.gravadoracampista.dtos.request.LoginRequestDto;
 import com.gravadoracampista.dtos.request.RegisterRequestDto;
 import com.gravadoracampista.dtos.request.UpdateUserRequestDto;
 import com.gravadoracampista.dtos.response.LoginResponseDto;
+import com.gravadoracampista.dtos.response.UserResponseDto;
+import com.gravadoracampista.model.entities.Usuario;
 import com.gravadoracampista.service.AuthorizationService;
 import com.gravadoracampista.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,5 +61,11 @@ public class UsuarioController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> users = usuarioService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }

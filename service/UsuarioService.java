@@ -2,6 +2,7 @@ package com.gravadoracampista.service;
 
 import com.gravadoracampista.dtos.request.RegisterRequestDto;
 import com.gravadoracampista.dtos.request.UpdateUserRequestDto;
+import com.gravadoracampista.dtos.response.UserResponseDto;
 import com.gravadoracampista.model.entities.Usuario;
 import com.gravadoracampista.repository.UsuarioRepository;
 import com.gravadoracampista.service.exceptions.allExceptions.CreateEntitiesException;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -124,5 +126,27 @@ public class UsuarioService {
 
     user.setExcluido(true);
     usuarioRepository.save(user);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public List<UserResponseDto> getAllUsers() {
+    List<UserResponseDto> collect = usuarioRepository.findByExcluidoFalse().stream()
+            .map((Object usuario) -> convertToDto((Usuario) usuario))
+            .collect(Collectors.toList());
+    return collect;
+  }
+
+  private UserResponseDto convertToDto(Usuario usuario) {
+    return new UserResponseDto(
+            usuario.getUsuarioId(),
+            usuario.getUsername(),
+            usuario.getPassword(),
+            usuario.getEmail(),
+            usuario.getPrimeiroNome(),
+            usuario.getSobrenome(),
+            usuario.getIsAdmin(),
+            usuario.getCriadoEm(),
+            usuario.getUltimoLogin()
+    );
   }
 }
