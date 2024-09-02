@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +89,13 @@ public class AlbumService {
   @Transactional(rollbackFor = Exception.class)
   public Page<AlbumResponseFullDto> searchAlbum(String nome, Pageable paginacao) {
     return albumRepository.findByNomeAlbumContainingAndExcluidoFalse(nome, paginacao)
-            .map(AlbumResponseFullDto::fromAlbum);
+            .map(album -> {
+              AlbumResponseFullDto albumResponse = AlbumResponseFullDto.fromAlbum(album);
+              albumResponse.setMusicas(album.getMusicas().stream()
+                      .filter(musica -> !musica.getExcluido())
+                      .collect(Collectors.toList()));
+              return albumResponse;
+            });
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -114,28 +121,33 @@ public class AlbumService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public List<AlbumResponseFullDto> getAllAlbumCompletos() {
+public List<AlbumResponseFullDto> getAllAlbumCompletos() {
     List<Album> albuns = this.albumRepository.findByExcluidoFalse();
 
     List<AlbumResponseFullDto> albunsResponse = new ArrayList<>();
 
     for (Album album : albuns) {
-      AlbumResponseFullDto albumResponse = AlbumResponseFullDto.fromAlbum(album);
-      albumResponse.setMusicas(album.getMusicas());
-      albumResponse.setAvaliacaoMedia(album.getAvaliacaoMedia());
-      albumResponse.setResumoAlbum(album.getResumoAlbum());
-      albumResponse.setNomeAlbum(album.getNomeAlbum());
-      albumResponse.setIdAlbum(album.getAlbumId());
+        AlbumResponseFullDto albumResponse = AlbumResponseFullDto.fromAlbum(album);
 
-      albunsResponse.add(albumResponse);
+        // Filter out excluded music tracks
+        albumResponse.setMusicas(album.getMusicas().stream()
+            .filter(musica -> !musica.getExcluido())
+            .collect(Collectors.toList()));
+
+        albumResponse.setAvaliacaoMedia(album.getAvaliacaoMedia());
+        albumResponse.setResumoAlbum(album.getResumoAlbum());
+        albumResponse.setNomeAlbum(album.getNomeAlbum());
+        albumResponse.setIdAlbum(album.getAlbumId());
+
+        albunsResponse.add(albumResponse);
     }
 
     if (albunsResponse.isEmpty()) {
-      throw new ResourceNotFoundException("Nenhum album encontrado.");
+        throw new ResourceNotFoundException("Nenhum album encontrado.");
     }
 
     return albunsResponse;
-  }
+}
 
   @Transactional(rollbackFor = Exception.class)
   public Album getAlbumById(Long id) {
@@ -151,6 +163,10 @@ public class AlbumService {
   public void deleteAlbum(Long id) {
     Album album = getAlbumById(id);
     album.setExcluido(true);
+
+    // Excluir todas as músicas do álbum
+    album.getMusicas().forEach(musica -> musica.setExcluido(true));
+
     this.albumRepository.save(album);
   }
 }

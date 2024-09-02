@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +82,13 @@ public class BandaService {
   @Transactional(rollbackFor = Exception.class)
   public Page<BandaResponseFullDto> searchBanda(String nome, Pageable paginacao) {
     return bandaRepository.findByNomeBandaContainingAndExcluidoFalse(nome, paginacao)
-            .map(BandaResponseFullDto::fromBanda);
+            .map(banda -> {
+              BandaResponseFullDto bandaResponse = BandaResponseFullDto.fromBanda(banda);
+              bandaResponse.setAlbuns(banda.getAlbuns().stream()
+                      .filter(album -> !album.getExcluido())
+                      .collect(Collectors.toList()));
+              return bandaResponse;
+            });
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -105,28 +112,33 @@ public class BandaService {
     return bandasResponse;
   }
 
-  @Transactional(rollbackFor = Exception.class)
-  public List<BandaResponseFullDto> getAllBandaCompleta() {
+@Transactional(rollbackFor = Exception.class)
+public List<BandaResponseFullDto> getAllBandaCompleta() {
     List<Banda> bandas = this.bandaRepository.findByExcluidoFalse();
 
     List<BandaResponseFullDto> bandasResponse = new ArrayList<>();
 
     for (Banda banda : bandas) {
-      BandaResponseFullDto bandaResponse = BandaResponseFullDto.fromBanda(banda);
-      bandaResponse.setIdBanda(banda.getBandaId());
-      bandaResponse.setNomeBanda(banda.getNomeBanda());
-      bandaResponse.setResumoBanda(banda.getResumoBanda());
-      bandaResponse.setAvaliacaoMedia(banda.getAvaliacaoMedia());
-      bandaResponse.setAlbuns(banda.getAlbuns());
-      bandasResponse.add(bandaResponse);
+        BandaResponseFullDto bandaResponse = BandaResponseFullDto.fromBanda(banda);
+        bandaResponse.setIdBanda(banda.getBandaId());
+        bandaResponse.setNomeBanda(banda.getNomeBanda());
+        bandaResponse.setResumoBanda(banda.getResumoBanda());
+        bandaResponse.setAvaliacaoMedia(banda.getAvaliacaoMedia());
+
+        // Filter out excluded albums
+        bandaResponse.setAlbuns(banda.getAlbuns().stream()
+            .filter(album -> !album.getExcluido())
+            .collect(Collectors.toList()));
+
+        bandasResponse.add(bandaResponse);
     }
 
     if (bandasResponse.isEmpty()) {
-      throw new ResourceNotFoundException("Nenhuma banda encontrada.");
+        throw new ResourceNotFoundException("Nenhuma banda encontrada.");
     }
 
     return bandasResponse;
-  }
+}
 
   @Transactional(rollbackFor = Exception.class)
   public Banda getBandaById(Long id) {
@@ -142,6 +154,15 @@ public class BandaService {
   public void deleteBanda(Long id) {
     Banda banda = getBandaById(id);
     banda.setExcluido(true);
+
+    // Excluir todos os álbuns da banda
+    banda.getAlbuns().forEach(album -> {
+      album.setExcluido(true);
+
+      // Excluir todas as músicas do álbum
+      album.getMusicas().forEach(musica -> musica.setExcluido(true));
+    });
+
     this.bandaRepository.save(banda);
   }
 }
