@@ -38,7 +38,7 @@ public class UsuarioController {
             LoginResponseDto result = this.authorizationService.login(request);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("message", e.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
