@@ -5,7 +5,6 @@ import com.gravadoracampista.dtos.response.MusicaResponseDto;
 import com.gravadoracampista.dtos.response.MusicaResponseFullDto;
 import com.gravadoracampista.exceptions.ResourceNotFoundException;
 import com.gravadoracampista.model.entities.Album;
-import com.gravadoracampista.model.entities.Banda;
 import com.gravadoracampista.model.entities.Musica;
 import com.gravadoracampista.repository.AlbumRepository;
 import com.gravadoracampista.repository.MusicaRepository;

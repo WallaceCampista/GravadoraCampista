@@ -1,6 +1,5 @@
 package com.gravadoracampista.dtos.request;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 @Getter

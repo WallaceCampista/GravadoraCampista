@@ -16,6 +16,7 @@ public class BandaRequestDto {
   private String nomeBanda;
 
   @NotEmpty(message = "Preenchimento Obrigatório.")
-  @Size(min = 4, max = 1000)
+  @Size(max = 1000, message = "O resumo da banda não pode exceder 1000 caracteres.")
+//  @Size(min = 4, max = 1000)
   private String resumoBanda;
 }

@@ -5,7 +5,6 @@ import com.gravadoracampista.dtos.request.RegisterRequestDto;
 import com.gravadoracampista.dtos.request.UpdateUserRequestDto;
 import com.gravadoracampista.dtos.response.LoginResponseDto;
 import com.gravadoracampista.dtos.response.UserResponseDto;
-import com.gravadoracampista.model.entities.Usuario;
 import com.gravadoracampista.service.AuthorizationService;
 import com.gravadoracampista.service.UsuarioService;
 import jakarta.validation.Valid;

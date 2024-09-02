@@ -1,13 +1,9 @@
 package com.gravadoracampista.model.entities.Avaliacao;
 
 import com.gravadoracampista.model.entities.Musica;
-import com.gravadoracampista.repository.AvaliacaoMusicaRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 @Entity
 @Getter @Setter
